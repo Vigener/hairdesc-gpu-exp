@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  mpi-env:
+    build: .
+    container_name: mpi-dev-env
+    hostname: mpi-mac
+    volumes:
+      - .:/workspace
+    user: mpiuser
+    working_dir: /workspace
+    # バックグラウンドで起動し続けるためのコマンド
+    command: tail -f /dev/null

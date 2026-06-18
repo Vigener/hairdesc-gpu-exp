@@ -9,40 +9,50 @@
 
 ## 開発と実行のワークフロー
 
-このプロジェクトでは、ローカル（Mac等）でのソースコード編集と、HPCクラスタ（PPXやMiyabi）での実行環境を同期させながら開発を進めます。
+このプロジェクトでは、**ローカルコンテナ（ミニマムテスト）**、**PPX（開発・テスト用HPC）**、**スパコン（本番環境）**の3つの環境を使い分けて開発を進めます。
 
-### 1. 日々の細かい開発（rsyncによる高速同期）
-
-ソースコードをローカルで編集し、クラスタ側でコンパイル・実行テストを回す際のワークフローです。毎回 Git を経由するのではなく、Makefile やエイリアスに設定したコマンドを利用して直接同期します。
+### 1. ローカル環境（Mac上のコンテナ）
+Macのローカル環境では、OrbStack等で構築したDockerコンテナを用いて、コードのコンパイル確認や小規模な動作確認（dry-run）を行います。Slurm環境はないため、直接バイナリを実行します。
 
 ```bash
-# 1. ローカルでコードを編集
-# (Zedなどで src/nbody_openacc.cpp 等を編集)
+# 1. コンテナへの入り方
+docker exec -it mpi-dev-env bash
 
-# 2. PPX/Miyabiへ変更を同期
-make push-ppx PJ=projects/hairdesc-gpu-exp
-
-# 3. PPXにログインしてコンパイル＆ジョブ投入
-# (PPXターミナル内で)
-cd projects/hairdesc-gpu-exp
-make run_acc
-
-# 4. 実行結果(out/など)をローカルに同期して確認
-make pull-ppx PJ=projects/hairdesc-gpu-exp
+# 2. コンテナ内でのコンパイルとローカル実行（テストデータを利用した小規模実行）
+make run_local
 ```
-*(※ `push-ppx` / `pull-ppx` コマンドはご自身の環境に合わせて適宜読み替えてください)*
 
-### 2. まとまった単位の同期（Git）
-
-1日の初めや終わり、あるいは主要な機能が実装できたタイミングでの同期手順です。こちらは変更履歴を確実に残すために Git を使用します。
+### 2. PPX環境（共有してからテスト実行する流れ）
+GPU（OpenACC）や複数ノードでの本格的なテストを行う環境です。ローカルで編集したコードをPPXに同期し、Slurmジョブとして投入します。
 
 ```bash
-# ローカルでコミット＆プッシュ
+# 1. ローカルでコードを編集し、PPXへ変更を同期 (rsync等のエイリアスやGitを利用)
+# (例) make push-ppx PJ=projects/hairdesc-gpu-exp
+
+# 2. PPXにログインしてコンパイル＆ジョブ投入
+cd projects/hairdesc-gpu-exp
+make run      # MPI+OpenMP ハイブリッド版のビルド＆実行
+# または
+make run_acc  # OpenACC版のビルド＆実行
+
+# 3. 実行結果(out/など)をローカルに同期して確認
+# (例) make pull-ppx PJ=projects/hairdesc-gpu-exp
+```
+
+### 3. スパコン・Miyabi環境（本番の実行をする流れ）
+大規模なノード数での本番計測を行う環境です。基本的な流れはPPXと同様ですが、変更履歴を確実に管理するため、本番実行時はGitを経由した同期を推奨します。
+
+```bash
+# 1. ローカルで動作確認を終えたコードをコミット＆プッシュ
 git add .
-git commit -m "OpenACC実装の追加"
+git commit -m "feat: 完成したOpenACC実装を追加"
 git push
 
-# クラスタ（PPX/Miyabi）側で最新版を取得
-# (PPXターミナル内で)
+# 2. スパコン（Miyabi等）にログインし、最新版を取得
+cd projects/hairdesc-gpu-exp
 git pull
+
+# 3. スパコン環境でビルド＆本番ジョブ投入
+make build
+sbatch nbody_hybrid.sh  # (※Miyabi環境等に合わせたジョブスクリプトを使用)
 ```
