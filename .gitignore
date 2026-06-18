@@ -1,0 +1,8 @@
+# Compiled binaries and outputs
+bin/
+out/
+*.double
+*.out
+
+# Mac OS
+.DS_Store
