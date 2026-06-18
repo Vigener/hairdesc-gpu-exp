@@ -10,8 +10,10 @@
 
 module load openmpi
 
+mkdir -p out
 
-echo "Nodes,MPI_Processes,OpenMP_Threads,NumParticles,Time_sec"
+CSV_FILE="out/results_nbody_hybrid_$(date +%Y%m%d_%H%M%S).csv"
+echo "Nodes,MPI_Processes,OpenMP_Threads,NumParticles,Time_sec" | tee "$CSV_FILE"
 
 # 実行用のヘルパー関数を定義（引数: ノード数, MPIプロセス数, OMPスレッド数）
 run_exp() {
@@ -31,7 +33,7 @@ run_exp() {
 
     # 1 rank/node かつ多数スレッド時は、ソケット跨ぎの core bind エラーを回避する。
     if [[ ${procs_per_node} -eq 1 && ${omp_threads} -ge 27 ]]; then
-        mpirun -n ${mpi_procs} \
+        res=$(mpirun -n ${mpi_procs} \
             ${NQSII_MPIOPTS:-} \
             -x OMP_NUM_THREADS \
             -x OMP_PROC_BIND \
@@ -48,9 +50,9 @@ run_exp() {
             ${data_dir}/z.double \
             ${data_dir}/vx.double \
             ${data_dir}/vy.double \
-            ${data_dir}/vz.double
+            ${data_dir}/vz.double)
     else
-        mpirun -n ${mpi_procs} \
+        res=$(mpirun -n ${mpi_procs} \
             ${NQSII_MPIOPTS:-} \
             -x OMP_NUM_THREADS \
             -x OMP_PROC_BIND \
@@ -67,8 +69,12 @@ run_exp() {
             ${data_dir}/z.double \
             ${data_dir}/vx.double \
             ${data_dir}/vy.double \
-            ${data_dir}/vz.double
+            ${data_dir}/vz.double)
     fi
+
+    # 標準出力(.out)には全て出しつつ、CSVにはカンマ区切りの結果行だけ抽出して追記
+    echo "$res"
+    echo "$res" | grep -E '^[0-9]+,[0-9]+,[0-9]+,[0-9]+,[0-9.]+$' >> "$CSV_FILE"
 }
 
 # run_exp 1 28 1 896 1000
@@ -105,3 +111,8 @@ for idx in "${!run_particles_list[@]}"; do
     # run_exp 2 1 27 "${run_particles}" "${source_particles}"
     # run_exp 4 1 27 "${run_particles}" "${source_particles}"
 done
+
+# 実行完了後、最新のCSVを "results_nbody_hybrid_latest.csv" としてコピーしておく
+cp "$CSV_FILE" "out/results_nbody_hybrid_latest.csv"
+
+echo "Experiment complete. Results saved to ${CSV_FILE} and copied to out/results_nbody_hybrid_latest.csv"
