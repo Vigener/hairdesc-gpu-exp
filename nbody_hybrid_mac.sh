@@ -33,7 +33,7 @@ run_exp() {
         -x OMP_NUM_THREADS \
         --map-by ppr:${procs_per_node}:node:PE=${omp_threads} \
         --bind-to core \
-        ./nbody_hybrid \
+        ./bin/nbody_hybrid \
         ${run_particles} \
         ${nodes} \
         ${data_dir}/m.double \

@@ -39,7 +39,7 @@ run_exp() {
             --map-by ppr:${procs_per_node}:node \
             --bind-to none \
             --report-bindings \
-            ./nbody_hybrid \
+            ./bin/nbody_hybrid \
             ${run_particles} \
             ${nodes} \
             ${data_dir}/m.double \
@@ -58,7 +58,7 @@ run_exp() {
             --map-by ppr:${procs_per_node}:node:PE=${omp_threads} \
             --bind-to core \
             --report-bindings \
-            ./nbody_hybrid \
+            ./bin/nbody_hybrid \
             ${run_particles} \
             ${nodes} \
             ${data_dir}/m.double \

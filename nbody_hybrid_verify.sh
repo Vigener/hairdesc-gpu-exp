@@ -74,7 +74,7 @@ run_case() {
     echo "--- benchmark: nbody_hybrid ---"
     mpi_run "${nodes}" "${procs_per_node}" "${omp_threads}" \
         --report-bindings \
-        ./nbody_hybrid \
+        ./bin/nbody_hybrid \
         "${run_particles}" \
         "${nodes}" \
         "${data_dir}/m.double" \
