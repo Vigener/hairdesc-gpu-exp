@@ -17,4 +17,4 @@ NODES=$(cat ${PBS_NODEFILE} | wc -l)
 N=10000
 
 echo "Running CPU version on ${NODES} nodes..."
-mpiexec -n ${NODES} --map-by ppr:1:node ./bin/nbody_cpu ${N} ${NODES} ./grav_data/n10000/m.double ./grav_data/n10000/x.double ./grav_data/n10000/y.double ./grav_data/n10000/z.double ./grav_data/n10000/vx.double ./grav_data/n10000/vy.double ./grav_data/n10000/vz.double
+mpiexec -n ${NODES} --map-by ppr:1:node ./bin/nbody_cpu ${N} ${NODES}

@@ -7,8 +7,7 @@
 #include <fstream>
 #include <vector>
 
-// ../file_util/read_double_file.hppから、ファイルからdoubleの配列を読み込む関数をインクルード
-#include "../file_util/read_double_file.hpp"
+
 
 
 struct Particle {
@@ -25,31 +24,16 @@ int main(int argc, char** argv) {
   MPI_Comm_size(MPI_COMM_WORLD, &size); // 全プロセスの数を取得
 
   // 引数が足りない場合はエラーを出して終了
-  if (argc < 10) {
+  if (argc < 3) {
     if (rank == 0) {
-      std::fprintf(stderr, "Usage: %s N nodes m_path x_path y_path z_path vx_path vy_path vz_path\n", argv[0]);
+      std::fprintf(stderr, "Usage: %s N nodes\n", argv[0]);
     }
     MPI_Finalize();
     return 1;
   }
 
-  // コマンドライン引数があればNとして読み込み、無ければデフォルト10000にする
-	int N = 10000;
-	if (argc > 1) {
-		N = std::atoi(argv[1]);
-	}
-
-  // コマンドライン引数からファイルパスを読み込む
-  // nodesは二番目の引数
+  int N = std::atoi(argv[1]);
   const int nodes = std::atoi(argv[2]);
-  
-  const char* m_path = argv[3]; 
-  const char* x_path = argv[4]; 
-  const char* y_path = argv[5]; 
-  const char* z_path = argv[6];
-  const char* vx_path = argv[7];
-  const char* vy_path = argv[8];
-  const char* vz_path = argv[9];
 
 
 	const int STEPS = 1000; // ステップ数
@@ -75,36 +59,16 @@ int main(int argc, char** argv) {
   std::vector<Particle> particles(N); // 全ての星の情報を全プロセスで共有するためのベクトル
 
 	if (rank == 0) {
-  std::vector<double> masses = read_double_file(m_path, static_cast<std::size_t>(N));
-  std::vector<double> xs = read_double_file(x_path, static_cast<std::size_t>(N));
-  std::vector<double> ys = read_double_file(y_path, static_cast<std::size_t>(N));
-  std::vector<double> zs = read_double_file(z_path, static_cast<std::size_t>(N));
-  std::vector<double> vxs = read_double_file(vx_path, static_cast<std::size_t>(N));
-  std::vector<double> vys = read_double_file(vy_path, static_cast<std::size_t>(N));
-  std::vector<double> vzs = read_double_file(vz_path, static_cast<std::size_t>(N));
-
-    // 読み込んだサイズがNと一致するか確認
-    if (masses.size() != static_cast<std::size_t>(N) ||
-        xs.size() != static_cast<std::size_t>(N) ||
-        ys.size() != static_cast<std::size_t>(N) ||
-        zs.size() != static_cast<std::size_t>(N) ||
-        vxs.size() != static_cast<std::size_t>(N) ||
-        vys.size() != static_cast<std::size_t>(N) ||
-        vzs.size() != static_cast<std::size_t>(N)) {
-      std::fprintf(stderr, "file size does not match N: %s\n", m_path);
-      MPI_Finalize();
-      return 1;
-    }
-
-    // 読み込んだデータをparticlesにコピー
+    // 外部ファイルに依存せず、ランダムな初期値を生成してスケーリングに備える
+    std::srand(42);
     for (int i = 0; i < N; ++i) {
-      particles[i].mass = masses[i];
-      particles[i].x = xs[i];
-      particles[i].y = ys[i];
-      particles[i].z = zs[i];
-      particles[i].vx = vxs[i];
-      particles[i].vy = vys[i];
-      particles[i].vz = vzs[i];
+      particles[i].mass = 1.0 + (std::rand() / (double)RAND_MAX);
+      particles[i].x = (std::rand() / (double)RAND_MAX) * 100.0;
+      particles[i].y = (std::rand() / (double)RAND_MAX) * 100.0;
+      particles[i].z = (std::rand() / (double)RAND_MAX) * 100.0;
+      particles[i].vx = 0.0;
+      particles[i].vy = 0.0;
+      particles[i].vz = 0.0;
     }
 	}
 

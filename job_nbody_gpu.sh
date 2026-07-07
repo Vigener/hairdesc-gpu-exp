@@ -21,4 +21,4 @@ WRAPPER
 chmod +x wrapper.sh
 
 echo "Running GPU version on ${NODES} nodes..."
-mpiexec -n ${NODES} --map-by ppr:1:node ./wrapper.sh ./bin/nbody_gpu ${N} ${NODES} ./grav_data/n10000/m.double ./grav_data/n10000/x.double ./grav_data/n10000/y.double ./grav_data/n10000/z.double ./grav_data/n10000/vx.double ./grav_data/n10000/vy.double ./grav_data/n10000/vz.double
+mpiexec -n ${NODES} --map-by ppr:1:node ./wrapper.sh ./bin/nbody_gpu ${N} ${NODES}
