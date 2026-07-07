@@ -1,0 +1,20 @@
+.PHONY: build_cpu build_gpu clean prepare
+
+# 共通設定
+CXX = mpicxx
+CFLAGS_CPU = -fast -Mconcur -mp
+CFLAGS_GPU = -fast -acc=gpu -gpu=cc90,mem:managed -Minfo=accel,opt
+
+all: build_cpu build_gpu
+
+prepare:
+	mkdir -p bin out
+
+build_cpu: prepare
+	$(CXX) $(CFLAGS_CPU) src/nbody_hybrid.cpp -o bin/nbody_cpu
+
+build_gpu: prepare
+	$(CXX) $(CFLAGS_GPU) src/nbody_openacc.cpp -o bin/nbody_gpu
+
+clean:
+	rm -rf bin out

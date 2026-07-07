@@ -123,52 +123,58 @@ int main(int argc, char** argv) {
     // 各実行の初めに初期状態に戻す
     particles = initial_particles;
 
+    std::vector<Particle> next_particles(local_particle_count);
+    Particle* p_data = particles.data();
+    Particle* np_data = next_particles.data();
+
     // 時間計測開始
     const double start_time = MPI_Wtime();
 
-    // シミュレーションのメインループ
-    for (int step = 0; step < STEPS; ++step) {
-		  std::vector<Particle> next_particles(particles.begin() + start_index, particles.begin() + end_index);
+    #pragma acc data copy(p_data[0:N]) create(np_data[0:local_particle_count])
+    {
+      // シミュレーションのメインループ
+      for (int step = 0; step < STEPS; ++step) {
+        #pragma acc parallel loop independent
+        for (int i = start_index; i < end_index; ++i) {
+          double ax = 0.0;
+          double ay = 0.0;
+          double az = 0.0;
 
-      #pragma omp parallel for default(none) shared(particles, next_particles, N, start_index, end_index, DT, G, local_particle_count)
-      for (int i = start_index; i < end_index; ++i) {
-        double ax = 0.0;
-        double ay = 0.0;
-        double az = 0.0;
+          for (int j = 0; j < N; ++j) {
+            if (i == j) {
+              continue;
+            }
 
-        for (int j = 0; j < N; ++j) {
-          if (i == j) {
-            continue;
+            const double dx = p_data[j].x - p_data[i].x;
+            const double dy = p_data[j].y - p_data[i].y;
+            const double dz = p_data[j].z - p_data[i].z;
+            const double dist2 = dx * dx + dy * dy + dz * dz + 1e-10;
+            const double dist = std::sqrt(dist2);
+            const double f = G * p_data[j].mass / dist2;
+
+            ax += f * dx / dist;
+            ay += f * dy / dist;
+            az += f * dz / dist;
           }
 
-          const double dx = particles[j].x - particles[i].x;
-          const double dy = particles[j].y - particles[i].y;
-          const double dz = particles[j].z - particles[i].z;
-          const double dist2 = dx * dx + dy * dy + dz * dz + 1e-10;
-          const double dist = std::sqrt(dist2);
-          const double f = G * particles[j].mass / dist2;
+          // 速度と位置の更新
+          np_data[i - start_index].vx = p_data[i].vx + DT * ax;
+          np_data[i - start_index].vy = p_data[i].vy + DT * ay;
+          np_data[i - start_index].vz = p_data[i].vz + DT * az;
 
-          ax += f * dx / dist;
-          ay += f * dy / dist;
-          az += f * dz / dist;
+          np_data[i - start_index].x = p_data[i].x + DT * np_data[i - start_index].vx;
+          np_data[i - start_index].y = p_data[i].y + DT * np_data[i - start_index].vy;
+          np_data[i - start_index].z = p_data[i].z + DT * np_data[i - start_index].vz;
         }
 
-        // 速度と位置の更新
-        next_particles[i - start_index].vx = particles[i].vx + DT * ax;
-        next_particles[i - start_index].vy = particles[i].vy + DT * ay;
-        next_particles[i - start_index].vz = particles[i].vz + DT * az;
-
-        next_particles[i - start_index].x = particles[i].x + DT * next_particles[i - start_index].vx;
-        next_particles[i - start_index].y = particles[i].y + DT * next_particles[i - start_index].vy;
-        next_particles[i - start_index].z = particles[i].z + DT * next_particles[i - start_index].vz;
+        // 結果の集約(Allgatherで行う)
+        #pragma acc host_data use_device(np_data, p_data)
+        {
+          MPI_Allgather(np_data, local_particle_count * static_cast<int>(sizeof(Particle)), MPI_BYTE,
+                        p_data, local_particle_count * static_cast<int>(sizeof(Particle)), MPI_BYTE, MPI_COMM_WORLD);
+        }
       }
-
-      // 結果の集約(Allgatherで行う)
-      // MPI_Allgather(送るデータの先頭アドレス, 送るデータのサイズ, データの型, 受け取るデータの先頭アドレス, 受け取るデータのサイズ, データの型, コミュニケータ)
-      MPI_Allgather(next_particles.data(), local_particle_count * static_cast<int>(sizeof(Particle)), MPI_BYTE,
-                particles.data(), local_particle_count * static_cast<int>(sizeof(Particle)), MPI_BYTE, MPI_COMM_WORLD);
-      // これにより、共有されている変数particlesが全てのプロセスで更新される
-	  }
+    }
 
 	  MPI_Barrier(MPI_COMM_WORLD); // 全プロセスが計算を終えるまで待つ
 
