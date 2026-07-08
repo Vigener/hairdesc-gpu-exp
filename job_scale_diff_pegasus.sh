@@ -2,7 +2,7 @@
 #PBS -q gpu
 #PBS -A QHPC
 #PBS -b 32
-#PBS -l elapstim_req=00:30:00
+#PBS -l elapstim_req=01:00:00
 #PBS -T openmpi
 
 cd ${PBS_O_WORKDIR}
