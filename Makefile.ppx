@@ -1,0 +1,26 @@
+CXX_CPU = mpicxx
+CXXFLAGS_CPU = -O3 -Wall -fopenmp -march=znver2
+
+CXX_GPU = OMPI_CXX=nvc++ mpicxx
+CXXFLAGS_GPU = -fast -acc=gpu -gpu=cc80,mem:managed -Minfo=accel,opt
+
+all: bin/nbody_cpu bin/nbody_gpu bin/diffusion_cpu bin/diffusion_gpu
+
+bin/nbody_cpu: src/nbody_hybrid.cpp
+	mkdir -p bin out
+	$(CXX_CPU) $(CXXFLAGS_CPU) $< -o $@
+
+bin/nbody_gpu: src/nbody_openacc.cpp
+	mkdir -p bin out
+	$(CXX_GPU) $(CXXFLAGS_GPU) $< -o $@
+
+bin/diffusion_cpu: src/diffusion3d_hybrid.cpp
+	mkdir -p bin out
+	$(CXX_CPU) $(CXXFLAGS_CPU) $< -o $@
+
+bin/diffusion_gpu: src/diffusion3d_openacc.cpp
+	mkdir -p bin out
+	$(CXX_GPU) $(CXXFLAGS_GPU) $< -o $@
+
+clean:
+	rm -rf bin out
