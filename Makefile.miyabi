@@ -3,7 +3,7 @@
 # 共通設定
 CXX = mpicxx
 CFLAGS_CPU = -fast -Mconcur -mp
-CFLAGS_GPU = -fast -acc=gpu -gpu=cc90,mem:managed -Minfo=accel,opt
+CFLAGS_GPU = -fast -acc=gpu -gpu=cc90 -Minfo=accel,opt
 
 all: build_cpu build_gpu build_diff_cpu build_diff_gpu
 

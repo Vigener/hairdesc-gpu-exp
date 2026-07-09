@@ -1,11 +1,16 @@
-# HAIRDESC GPU Acceleration Experiments (nbody)
+# HAIRDESC GPU Acceleration Experiments (N-body & Diffusion3D)
 
-このリポジトリは、HAIRDESCの演習資料に基づくN体問題のOpenACCなどを用いたGPU高速化と性能評価の実験コードを管理しています。
+このリポジトリは、HAIRDESCの演習資料に基づく「N体問題」と「3次元拡散方程式」のOpenACCを用いたGPU高速化、およびMPIを用いたマルチGPU並列化（GPU-Aware MPI）の性能評価の実験コードを管理しています。
 
 > **⚠️ 注意事項 (Security Warning)**
 > このリポジトリは **Public** リポジトリです。
 > - PPXやMiyabiなどのクラスタアクセス情報、パスワード、機密データを絶対にコミットしないでください。
 > - 個人的なAPIキーなどを混入させないよう十分注意してください。
+
+## 現在の進捗状況
+- **Phase 1**: `#pragma acc managed` (Unified Memory) によるマルチGPU化のベースライン実装とスケーリング評価（完了）
+- **Phase 2**: `host_data use_device` と GPU-Aware MPI を用いた Unified Memory ボトルネックの排除と、OpenACC組み込みプロファイラによる通信・計算スケーリングの可視化（完了）
+- **Phase 3**: 非同期MPI通信（`MPI_Isend` / `MPI_Irecv`）を用いた計算と通信のオーバーラップ実装（Next Step）
 
 ## 開発と実行のワークフロー
 

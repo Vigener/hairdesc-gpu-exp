@@ -26,7 +26,7 @@ echo "Running Diffusion GPU Scaling Test on Miyabi-G (${NODES} nodes)"
 echo "========================================"
 
 echo "Diffusion GPU (${NX_GPU}x${NX_GPU}x${NX_GPU})"
-mpirun -n ${NODES} --map-by ppr:1:node --bind-to none ./bin/diffusion_gpu ${NX_GPU} ${NX_GPU} ${NX_GPU} ${NODES}
+NVCOMPILER_ACC_TIME=1 mpirun -n ${NODES} --map-by ppr:1:node --bind-to none ./bin/diffusion_gpu ${NX_GPU} ${NX_GPU} ${NX_GPU} ${NODES}
 
 echo "Diffusion test finished successfully!"
 IN_EOF
