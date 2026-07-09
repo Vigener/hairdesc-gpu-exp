@@ -22,37 +22,42 @@ docker exec -it mpi-dev-env bash
 make run_local
 ```
 
-### 2. PPX環境（共有してからテスト実行する流れ）
-GPU（OpenACC）や複数ノードでの本格的なテストを行う環境です。ローカルで編集したコードをPPXに同期し、Slurmジョブとして投入します。
+### 2. PPX環境（開発・デバッグ用環境）
+コンパイル確認や単ノード・少ノードでのGPU動作確認を行う環境です。ローカルで編集したコードをPPXに同期し、Slurmジョブとして投入します。
 
 ```bash
-# 1. ローカルでコードを編集し、PPXへ変更を同期 (rsync等のエイリアスやGitを利用)
-# (例) make push-ppx PJ=projects/hairdesc-gpu-exp
-
+# 1. エージェントが rsync でPPXへ変更を自動同期します
 # 2. PPXにログインしてコンパイル＆ジョブ投入
+ssh ppx
 cd projects/hairdesc-gpu-exp
-make run      # MPI+OpenMP ハイブリッド版のビルド＆実行
-# または
-make run_acc  # OpenACC版のビルド＆実行
+make -f Makefile.ppx clean
+make -f Makefile.ppx
 
-# 3. 実行結果(out/など)をローカルに同期して確認
-# (例) make pull-ppx PJ=projects/hairdesc-gpu-exp
+# 3. ジョブ生成スクリプトを実行し、Slurmへ投入
+bash ./submit_test_ppx.sh
+sbatch job_ppx_test_2nodes.sh
+
+# 4. 実行結果の確認
+cat out/*.out
 ```
 
-### 3. スパコン・Miyabi環境（本番の実行をする流れ）
-大規模なノード数での本番計測を行う環境です。基本的な流れはPPXと同様ですが、変更履歴を確実に管理するため、本番実行時はGitを経由した同期を推奨します。
+### 3. スパコン・Miyabi環境（本番スケーリングテスト）
+大規模なノード数での本番計測を行う環境です。Miyabi-G (GH200) を用いて、マルチGPUスケーリングの検証を行います。PBS Professionalを使用します。
 
 ```bash
-# 1. ローカルで動作確認を終えたコードをコミット＆プッシュ
-git add .
-git commit -m "feat: 完成したOpenACC実装を追加"
-git push
+# 1. エージェントが rsync でMiyabiへ変更を自動同期します
+# 2. スパコン（Miyabi-G）にログイン
+ssh miyabi-g
+cd /work/xg26i048/x10752/projects/hairdesc-gpu-exp
 
-# 2. スパコン（Miyabi等）にログインし、最新版を取得
-cd projects/hairdesc-gpu-exp
-git pull
+# 3. スパコン環境でビルド
+make -f Makefile.miyabi clean
+make -f Makefile.miyabi
 
-# 3. スパコン環境でビルド＆本番ジョブ投入
-make build
-sbatch nbody_hybrid.sh  # (※Miyabi環境等に合わせたジョブスクリプトを使用)
+# 4. スケーリングテスト用ジョブの自動生成＆投入
+bash ./submit_scaling_miyabi_gpu_only.sh
+# 内部で qsub が順次実行されます
+
+# 5. ジョブ状態の確認
+qstat
 ```
