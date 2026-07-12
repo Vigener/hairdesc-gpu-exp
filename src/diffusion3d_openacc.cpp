@@ -62,7 +62,7 @@ int main(int argc, char** argv) {
     const int mgn = 1;
     const int ln = nx * ny * (nz + 2 * mgn);
 
-    const int STEPS = 100;
+    const int STEPS = 10;
     const float dx = 0.1f, dy = 0.1f, dz = 0.1f;
     const float dt = 0.001f;
     const float kappa = 1.0f;
