@@ -1,0 +1,15 @@
+.PHONY: build_cpu_fast clean prepare
+
+# Miyabi-C (Intel Xeon MAX) 用設定
+# Intel oneAPI: デフォルトで intel/impi モジュールがロード済
+CXX = mpiicpx
+CFLAGS_CPU = -O3 -qopenmp -axSAPPHIRERAPIDS,CORE-AVX512
+
+prepare:
+	mkdir -p bin out
+
+build_cpu_fast: prepare
+	$(CXX) $(CFLAGS_CPU) src/nbody_hybrid_fast.cpp -o bin/nbody_cpu_fast
+
+clean:
+	rm -rf bin out
