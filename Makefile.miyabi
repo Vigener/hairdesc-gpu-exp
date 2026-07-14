@@ -5,7 +5,7 @@ CXX = mpicxx
 CFLAGS_CPU = -fast -Mconcur -mp
 CFLAGS_GPU = -fast -acc=gpu -gpu=cc90 -Minfo=accel,opt
 
-all: build_cpu build_gpu build_diff_cpu build_diff_gpu
+all: build_cpu build_gpu build_diff_cpu build_diff_gpu build_cpu_fast build_gpu_fast
 
 prepare:
 	mkdir -p bin out
@@ -15,6 +15,12 @@ build_cpu: prepare
 
 build_gpu: prepare
 	$(CXX) $(CFLAGS_GPU) src/nbody_openacc.cpp -o bin/nbody_gpu
+
+build_cpu_fast: prepare
+	$(CXX) $(CFLAGS_CPU) src/nbody_hybrid_fast.cpp -o bin/nbody_cpu_fast
+
+build_gpu_fast: prepare
+	$(CXX) $(CFLAGS_GPU) src/nbody_openacc_fast.cpp -o bin/nbody_gpu_fast
 
 build_diff_cpu: prepare
 	$(CXX) $(CFLAGS_CPU) src/diffusion3d_hybrid.cpp -o bin/diffusion_cpu

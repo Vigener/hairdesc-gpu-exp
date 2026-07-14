@@ -14,7 +14,7 @@ for NODES in 1 2 4 8; do
 #!/bin/bash
 #PBS -q regular-g
 #PBS -l select=${NODES}
-#PBS -l walltime=00:15:00
+#PBS -l walltime=00:03:00
 #PBS -W group_list=xg26i048
 #PBS -j oe
 
