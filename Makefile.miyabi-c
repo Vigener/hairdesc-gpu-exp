@@ -11,5 +11,8 @@ prepare:
 build_cpu_fast: prepare
 	$(CXX) $(CFLAGS_CPU) src/nbody_hybrid_fast.cpp -o bin/nbody_cpu_fast
 
+build_diff_cpu: prepare
+	$(CXX) $(CFLAGS_CPU) src/diffusion3d_hybrid.cpp -o bin/diffusion_cpu
+
 clean:
 	rm -rf bin out

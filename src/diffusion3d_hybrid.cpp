@@ -40,21 +40,17 @@ int main(int argc, char** argv) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    if (argc < 2) {
+    if (argc < 4) {
         if (rank == 0) {
-            std::fprintf(stderr, "Usage: %s nodes [N]\n", argv[0]);
+            std::fprintf(stderr, "Usage: %s nodes N steps\n", argv[0]);
         }
         MPI_Finalize();
         return 1;
     }
 
     const int nodes = std::atoi(argv[1]);
-    
-    // N corresponds to the local grid size per dimension
-    int N = 256; 
-    if (argc > 2) {
-        N = std::atoi(argv[2]);
-    }
+    const int N = std::atoi(argv[2]);
+    const int STEPS = std::atoi(argv[3]);
 
     const int nx = N;
     const int ny = N;
@@ -62,7 +58,6 @@ int main(int argc, char** argv) {
     const int mgn = 1;
     const int ln = nx * ny * (nz + 2 * mgn);
 
-    const int STEPS = 100;
     const float dx = 0.1f, dy = 0.1f, dz = 0.1f;
     const float dt = 0.001f;
     const float kappa = 1.0f;
@@ -103,8 +98,15 @@ int main(int argc, char** argv) {
 
     if (rank == 0) {
         int omp_threads = omp_get_max_threads();
-        // nodes, MPI ranks, OpenMP threads, Grid Size N, Time
-        std::printf("%d,%d,%d,%d,%.6f\n", nodes, size, omp_threads, N, avg_time);
+        // 演算量: NX*NY*NZ * (7乗算 + 6加算 = 13 FLOP) × STEPS
+        const double total_flop = 13.0 * nx * ny * nz * STEPS;
+        // メモリ読み書き量: NX*NY*NZ * (7 float読み込み + 1 float書き込み = 8 floats) × 4 bytes × STEPS
+        const double total_bytes = 8.0 * 4.0 * nx * ny * nz * STEPS;
+        const double gflops = total_flop / avg_time / 1e9;
+        const double bandwidth_gbs = total_bytes / avg_time / 1e9;
+        // nodes,mpi_procs,omp_threads,N,steps,time(s),GFLOPS,BW(GB/s)
+        std::printf("%d,%d,%d,%d,%d,%.6f,%.3f,%.3f\n", 
+                    nodes, size, omp_threads, N, STEPS, avg_time, gflops, bandwidth_gbs);
     }
 
     MPI_Finalize();
