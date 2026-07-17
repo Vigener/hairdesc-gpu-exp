@@ -12,3 +12,11 @@
 
 ## 学習・実験ログの記録ルール (Logging Rule)
 - 講義資料のどの部分を学ぶためにどんな実装をしたのか、実装の意図や、実験からわかったことなど、進めていく全ての内容（意思決定含む）について、必ずログとしてMarkdownファイル（例: `docs/learning_log.md`）に詳細にまとめていくこと。
+
+## 同期・デプロイに関するルール (Sync & Deploy Rules)
+- Miyabi などのリモート環境へファイルを同期（rsync）する際は、プログラムの実行に不要な `.md` ファイル（マークダウンドキュメント）や `docs/` フォルダを必ず除外してください。
+- 以下のオプション例を参考にし、不要なファイル転送を防止してください。
+  ```bash
+  rsync -avz --exclude='.git' --exclude='bin' --exclude='out' --exclude='*.md' --exclude='docs/' ./ miyabi-g:/work/...
+  ```
+
