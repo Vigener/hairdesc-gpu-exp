@@ -4,5 +4,10 @@ out/
 *.double
 *.out
 
+# Profiler outputs
+*.nsys-rep
+*.ncu-rep
+*.sqlite
+
 # Mac OS
 .DS_Store
