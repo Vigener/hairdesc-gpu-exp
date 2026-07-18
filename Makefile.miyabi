@@ -22,6 +22,9 @@ build_cpu_fast: prepare
 build_gpu_fast: prepare
 	$(CXX) $(CFLAGS_GPU) src/nbody_openacc_fast.cpp -o bin/nbody_gpu_fast
 
+build_gpu_soa: prepare
+	$(CXX) $(CFLAGS_GPU) src/nbody_openacc_soa.cpp -o bin/nbody_gpu_soa
+
 build_diff_cpu: prepare
 	$(CXX) $(CFLAGS_CPU) src/diffusion3d_hybrid.cpp -o bin/diffusion_cpu
 

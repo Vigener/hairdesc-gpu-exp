@@ -93,11 +93,14 @@ WRAPPER
 chmod +x wrapper.sh
 
 make -f Makefile.miyabi build_gpu_fast
+make -f Makefile.miyabi build_gpu_soa
 
 NODES=\$(cat \${PBS_NODEFILE} | wc -l)
 echo "# nodes,mpi_procs,omp_threads,N,steps,time(s),GFLOPS"
 echo "GPU_RESULT:"
 mpiexec -n \${NODES} --map-by ppr:1:node --bind-to none ./wrapper.sh ./bin/nbody_gpu_fast ${N} \${NODES} ${STEPS}
+echo "GPU_SOA_RESULT:"
+mpiexec -n \${NODES} --map-by ppr:1:node --bind-to none ./wrapper.sh ./bin/nbody_gpu_soa ${N} \${NODES} ${STEPS}
 EOF
 chmod +x ${SCRIPT_GPU}
 
