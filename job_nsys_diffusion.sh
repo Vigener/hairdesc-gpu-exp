@@ -8,7 +8,7 @@
 set -euo pipefail
 cd ${PBS_O_WORKDIR}
 
-# 【修正】コンパイルターゲットを N-body 用から 3D Diffusion 用 (build_diff_gpu) へ修正
+# コンパイルターゲット
 make -f Makefile.miyabi build_diff_gpu
 
 # GPU割り当て用ラッパーの作成
@@ -21,8 +21,8 @@ WRAPPER
 chmod +x wrapper.sh
 
 echo "=== Nsight Systems Profiling: Diffusion3D Async (2 Nodes) ==="
-# 10ステップのみ実行してオーバーヘッドを抑える
-nsys profile -f true -o nsys_diffusion_async \
+# 【修正】--trace=mpi,cuda,osrt オプションを追加して MPI 通信ログを有効化します
+nsys profile -f true --trace=mpi,cuda,osrt -o nsys_diffusion_async \
   mpiexec -n 2 --map-by ppr:1:node --bind-to none ./wrapper.sh ./bin/diffusion_gpu 1024 1024 1024 10
 
 echo "Profiling completed. Please sync 'nsys_diffusion_async.nsys-rep' to your Mac."
