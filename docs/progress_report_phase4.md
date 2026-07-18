@@ -5,7 +5,7 @@
 これまでのフェーズ（Phase 1〜3）はすべて **Miyabi-G（NVIDIA H100 GPU）** 上での実験であった。
 本フェーズ（Phase 4）では、同一のN体問題（$N=65536$, $\text{STEPS}=100$）を対象とし、「CPUの最高性能」対「GPUの最高性能」を定量的に比較する。
 
-比較対象の CPU 環境として、以下の2種類を評価した：
+比較対象 of CPU 環境として、以下の2種類を評価した：
 1. **Miyabi-C ノード** (Intel Xeon CPU Max 9480 × 2ソケット, 計112スレッド)
 2. **Miyabi-G ノード** (NVIDIA Grace CPU, 72コア/スレッド)
 
@@ -69,8 +69,8 @@
 - 一方、Grace CPU（ARM）は 72 コアそれぞれに最適化された L2 / L3 キャッシュ構成と、LPDDR5X 高帯域メモリにより、スレッド間の帯域競合が最小限に抑えられ、理論ピークに対する効率（**17.2%**）が他プロセッサより際立って高い結果となった。
 
 ### 2. GPU (H100) と CPU の性能差の縮小
-- Grace CPUを採用したことにより、H100 GPU との性能比は **7.8倍**（Xeon MAX 時）から **4.3倍** へと大幅に縮小した。
-- `sqrt()` ボトルネック（通常の FMA ユニットより 1/16〜1/20 遅い特殊関数ユニットで処理され、かつデータ依存が発生する制約）は CPU・GPU 双方に同様に存在する。しかし、Grace CPU のキャッシュ・メモリ帯域の効率が良いため、GPU が誇る膨大な演算ユニットの优位性が相対的に薄れたためである。
+- Grace CPU を採用したことにより、H100 GPU との性能比は **7.8倍**（Xeon MAX 時）から **4.3倍** へと大幅に縮小した。
+- `sqrt()` ボトルネック（通常の FMA ユニットより 1/16〜1/20 遅い特殊関数ユニットで処理され、かつデータ依存が発生する制約）は CPU・GPU 双方に同様に存在する。しかし、Grace CPU のキャッシュ・メモリ帯域の効率が良いため、GPU が誇る膨大な演算ユニットの優位性が相対的に薄れたためである。
 
 ### 3. Grace CPU の卓越した並列スケーリング効率（97.5%）
 - **Xeon MAX** (2ノード) のスケーリング効率は **81.0%** であり、`MPI_Allgather` 同期通信時に 112 スレッドの同期待けオーバーヘッドが顕在化していた。
@@ -90,17 +90,20 @@
 ### 5. Nsight Compute によるハードウェアボトルネックの定量実証
 H100 GPU における N-body カーネルの実行実態をさらに深掘りするため、Nsight Compute (`ncu`) によるハードウェアカウンタの測定結果を分析した。
 
-![Nsight Compute 概要](file:///Users/mikoto/dev/brain/research-brain/projects/hairdesc-gpu-exp/images/ncu_details_nbody.png)
-*図1：Nsight Systems / Compute による詳細プロファイルメトリクス一覧*
+![Nsight Compute サマリー](file:///Users/mikoto/dev/brain/research-brain/projects/hairdesc-gpu-exp/images/ncu_summary_nbody.png)
+*図1：Nsight Compute による Summary ビュー（最適化の提案と見積もり速度向上率）*
+
+![Nsight Compute 詳細](file:///Users/mikoto/dev/brain/research-brain/projects/hairdesc-gpu-exp/images/ncu_details_nbody.png)
+*図2：Nsight Compute による Details（詳細）ビューのメトリクス一覧*
 
 ![ルーフラインモデル](file:///Users/mikoto/dev/brain/research-brain/projects/hairdesc-gpu-exp/images/ncu_roofline_nbody.png)
-*図2：倍精度演算における実測ルーフライン（FP64の理論上限線より大幅に下に位置している）*
+*図3：倍精度演算における実測ルーフライン（FP64の理論上限線より大幅に下に位置している）*
 
 ![メモリチャート](file:///Users/mikoto/dev/brain/research-brain/projects/hairdesc-gpu-exp/images/ncu_memory_chart_nbody.png)
-*図3：GPU 内部メモリ階層におけるデータフローチャート*
+*図4：GPU 内部メモリ階層におけるデータフローチャート*
 
 ![Warpストール統計](file:///Users/mikoto/dev/brain/research-brain/projects/hairdesc-gpu-exp/images/ncu_warp_stall_nbody.png)
-*図4：Warpの待機ストール要因の分析データ*
+*図5：Warpの待機ストール要因の分析データ*
 
 #### プロファイラから得られた物理的知見
 1.  **実質稼働率の裏付け**:
@@ -108,14 +111,14 @@ H100 GPU における N-body カーネルの実行実態をさらに深掘りす
     - **Memory Throughput: 55.24%**
     標準 GFLOPS 換算（ピーク比効率 2.0%）の数値とは異なり、SM 演算コアは実質的に **6割近く (59.3%)** 稼働していることが実証された。これは H100 のコアが遊んでいるわけではなく、与えられた命令を限界に近い高効率で実行していることを示す。
 2.  **`sqrt()` による実行ストールの実証**:
-    - 図4のストール分析において、Warp が命令実行を停滞させている原因の **37.35%** が **`Wait` ストール**（依存関係にある先行命令の完了待機）であることが確認された。
+    - 図5のストール分析において、Warp が命令実行を停滞させている原因の **37.35%** が **`Wait` ストール**（依存関係にある先行命令の完了待機）であることが確認された。
     - これは、FMA の16倍以上のレイテンシを持つ `sqrt()`（特殊関数ユニット SFU）を実行した際、その結果が確定するまで後続の乗算・加算が完全にストールしているという「データ依存ストール」の実態を数値的に証明している。
 3.  **オンチップ L2 キャッシュのヒット率 100.00%**:
-    - 図3のメモリチャートが示す通り、本実験サイズ（N=16384, 配列約 917 KB）において **L2 キャッシュヒット率は 100.00%** （L1/TEXは 83.62%）を記録した。
+    - 図4のメモリチャートが示す通り、本実験サイズ（N=16384, 配列約 917 KB）において **L2 キャッシュヒット率は 100.00%** （L1/TEXは 83.62%）を記録した。
     - 物理的な DRAM（HBM3）へのアクセスはほぼゼロ（DRAM Throughput 0.01%）であり、配列データ全体が超高速な L2 キャッシュ（H100 内蔵の 80 MB）上に完全に常駐した状態でループが回っていることが実証された。
 
 #### 最大の最適化機会：非合体グローバルアクセスの存在
-- プロファイラは、本カーネルの最大のボトルネックとして **`Uncoalesced Global Accesses`**（非合体グローバルメモリアクセス、想定改善率 **94.79%** 🚀）を警告している。
+- 図1の Summary ビューが示す通り、プロファイラは本カーネルの最大のボトルネックとして **`Uncoalesced Global Accesses`**（非合体グローバルメモリアクセス、想定改善率 **64.79%**）を警告している。
 - 現在の実装が `Array of Structures (AoS)` 構造になっていること、または粒子データの読み出し時のインデックスがスレッド間で連続していないため、メモリ転送の無駄が発生している。これを `Structure of Arrays (SoA)` に変更してメモリアドレスを連続化することが、今後のさらなる最適化（次の一手）として極めて有力であることが実証された。
 
 ---
