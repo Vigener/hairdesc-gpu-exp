@@ -8,8 +8,8 @@
 set -euo pipefail
 cd ${PBS_O_WORKDIR}
 
-# コンパイル確認
-make -f Makefile.miyabi build_gpu_fast
+# 【修正】コンパイルターゲットを N-body 用から 3D Diffusion 用 (build_diff_gpu) へ修正
+make -f Makefile.miyabi build_diff_gpu
 
 # GPU割り当て用ラッパーの作成
 cat << 'WRAPPER' > wrapper.sh
