@@ -162,12 +162,18 @@ int main(int argc, char** argv) {
             const double dy = y[j] - yi;
             const double dz = z[j] - zi;
             const double dist2 = dx * dx + dy * dy + dz * dz + 1e-10;
-            const double dist = std::sqrt(dist2);
-            const double f = G * mass[j] / dist2;
+            
+            // 1.0 / sqrt を明示的に作り、コンパイラに rsqrt 命令を強制する
+            const double inv_dist = 1.0 / std::sqrt(dist2);
+            const double inv_dist3 = inv_dist * inv_dist * inv_dist;
+            
+            // 割り算を完全に消滅させ、すべて「掛け算（1サイクル）」にする
+            const double f = G * mass[j] * inv_dist3;
 
-            ax += f * dx / dist;
-            ay += f * dy / dist;
-            az += f * dz / dist;
+            ax += f * dx;
+            ay += f * dy;
+            az += f * dz;
+
           }
 
           // 速度と位置の更新
