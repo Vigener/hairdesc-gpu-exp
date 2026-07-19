@@ -75,7 +75,7 @@ _図1：手動最適化適用前の `main_143` のプロファイル（Wait Stal
 ### B. 改善後 (After): `Wait Stalls` の消滅と命令の最適化
 
 _(※画像配置プレースホルダー：ここに `images/ncu_summary_gpu_soa_after.png` を配置してください)_
-![alt text](images/image.png)
+![alt text](images/ncu_summary_gpu_soa_after.png)
 _図2：手動最適化適用後の `main_143` のプロファイル（Wait Stallsの消滅、DFMA/DMULのみの実行）_
 
 - **画像からの解説**:
