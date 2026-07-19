@@ -89,7 +89,7 @@ _図1：Nsight Compute による Summary ビュー（非合体アクセス警告
 
 ### B. 実測ルーフラインモデル（Detailsビュー上部）
 
-*(※画像配置プレースホルダー：ここに `images/ncu_roofline_nbody_soa.png` を配置してください)*
+![alt text](images/ncu_roofline_nbody_soa.png)
 _図2：Nsight Compute による `main_143` の Roofline モデル_
 
 - **画像からの解説**:
@@ -97,12 +97,11 @@ _図2：Nsight Compute による `main_143` の Roofline モデル_
 
 ### C. 詳細ワークロードおよびアクセスパターン分析（Detailsビュー下部）
 
-*(※画像配置プレースホルダー：ここに `images/ncu_details_nbody_soa.png` を配置してください)*
+![alt text](images/ncu_details_nbody_soa.png)
 _図3：Nsight Compute による詳細ワークロード分析（キャッシュヒット率とメモリアクセスパターン）_
 
 - **画像からの解説**:
   `L1TEX Global Load Access Pattern` の Est. Speedup が 0.01% になり、ロード処理の非合体アクセスが完全に解消されている。一方、Warpの待機原因（ストール要因）の約 40.6% が `sqrt()` のデータ依存による `Wait` ストールであることも確認できる。
-
 
 ---
 
