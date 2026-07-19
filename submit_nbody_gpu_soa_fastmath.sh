@@ -21,7 +21,7 @@ for NODES in 1 2; do
   cat << EOF > ${SCRIPT_GPU}
 #!/bin/bash
 #PBS -q debug-g
-#PBS -l select=${NODES}:ncpus=72:mpiprocs=1:ngpus=1
+#PBS -l select=${NODES}
 #PBS -l walltime=00:03:00
 #PBS -W group_list=xg26i048
 #PBS -j oe

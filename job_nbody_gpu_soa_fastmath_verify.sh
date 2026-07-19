@@ -1,6 +1,6 @@
 #!/bin/bash
 #PBS -q debug-g
-#PBS -l select=1:ncpus=72:mpiprocs=1:ngpus=1
+#PBS -l select=1
 #PBS -l walltime=00:03:00
 #PBS -W group_list=xg26i048
 #PBS -j oe
