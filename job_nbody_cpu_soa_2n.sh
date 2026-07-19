@@ -18,10 +18,5 @@ export OMP_PLACES=cores
 N=65536
 STEPS=100
 
-echo "=== Running CPU SoA 1 Node ==="
-# -n 1 と --map-by ppr:1:node で 1ノードのみ使用
-mpiexec -n 1 --map-by ppr:1:node ./bin/nbody_cpu_soa ${N} 1 ${STEPS}
-
 echo "=== Running CPU SoA 2 Nodes ==="
-# -n 2 と --map-by ppr:1:node で 2ノード使用
 mpiexec -n 2 --map-by ppr:1:node ./bin/nbody_cpu_soa ${N} 2 ${STEPS}
