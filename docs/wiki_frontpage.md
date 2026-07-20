@@ -4,7 +4,8 @@
 
 #Katex
 
-本ポータルページでは、Miyabi-G (NVIDIA GH200 / H100 GPU & Grace CPU) 上で実施した GPU プログラミング（OpenACC）およびマルチGPU化（MPI+OpenACC）の実践的学習と極限最適化（Phase 1〜7）の成果をまとめている。
+本ポータルページでは、Miyabi-G (NVIDIA GH200 / H100 GPU & Grace CPU) 上で実施した GPU プログラミング（OpenACC）およびマルチGPU化（MPI+OpenACC）の実践的学習と段階的な最適化（Phase 1〜7）の成果をまとめている。
+
 
 詳細な検証結果や時系列のログについては、下部のリンクより各詳細ページを参照のこと。
 
@@ -47,13 +48,13 @@
 
 ## 3. テーマ別・詳細検証ストーリー (トピック別サブページ)
 
-### ① [[N-body 演算・メモリ極限最適化の軌跡>./N-body_Optimization]]
+### ① [[N-body 演算・メモリ最適化の過程>./N-body_Optimization]]
 - **概要**: 
-  Nsight Compute プロファイルに基づき、グローバルメモリ非合体アクセスを SoA 化によって完全解消。さらに、最大ストール要因 `Wait Stalls (40.7%)` の原因であった倍精度平方根 (`std::sqrt`) と除算を手動で排除し、高速な `rsqrt` 近似命令へと再設計することで、GPU で **3.08倍**、CPU で **1.68倍** の限界スループットを引き出した検証ログ。
+  Nsight Compute プロファイルに基づき、グローバルメモリ非合体アクセスを SoA 化によって解消。さらに、最大ストール要因 `Wait Stalls (40.7%)` の原因であった倍精度平方根 (`std::sqrt`) と除算を手動で排除し、高速な `rsqrt` 近似命令へと再設計することで、GPU で **3.08倍**、CPU で **1.68倍** の限界スループットを引き出した検証ログ。
 
 ### ② [[3D 拡散方程式におけるマルチGPU通信隠蔽>./Diffusion3D_Optimization]]
 - **概要**: 
-  メモリ・通信律速な格子ステンシル計算において、Unified Memory に起因する暗黙ページフォルトのボトルネックを解明。GPU-Aware MPI の適用による転送速度の劇的改善から、`MPI_Isend/Irecv` と OpenACC `async` を用いた非同期の「計算と通信の隠蔽（オーバーラップ）」によって、8ノードで弱スケーリング効率 **90%超** を達成した通信最適化ログ。
+  メモリ・通信律速な格子ステンシル計算において、Unified Memory に起因する暗黙ページフォルトのボトルネックを解明。GPU-Aware MPI の適用による転送速度の大幅な改善から、`MPI_Isend/Irecv` と OpenACC `async` を用いた非同期の「計算と通信の隠蔽（オーバーラップ）」によって、8ノードで弱スケーリング効率 **90%超** を達成した通信最適化ログ。
 
 ### ③ [[CPU vs GPU 性能対照実験の詳細と物理考察>./CPU_vs_GPU_Comparison]]
 - **概要**: 
@@ -71,4 +72,5 @@
 - [[Phase 4: CPU vs GPU AoS版対照実験>./Phase4]]
 - [[Phase 5: 3D拡散方程式 CPU vs GPU 比較>./Phase5]]
 - [[Phase 6: SoA構造移行による合体アクセス実証>./Phase6]]
-- [[Phase 7: Fast Math & 手動rsqrt/除算排除極限最適化>./Phase7]]
+- [[Phase 7: Fast Math & 手動rsqrt/除算排除による最適化>./Phase7]]
+
