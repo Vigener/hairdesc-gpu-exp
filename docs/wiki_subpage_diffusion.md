@@ -1,8 +1,8 @@
-# 3D 拡散方程式におけるマルチGPU通信隠蔽 (Phase 1-3)
-
-[[Architecture-team/igarashi/Hairdesc_OpenACC]]
+[[Architecture-team/igarashi/Hairdesc_OpenACC]]<!--PW_LINK-->
 
 #Katex
+
+# 3D 拡散方程式におけるマルチGPU通信隠蔽 (Phase 1-3)
 
 本ページでは、メモリ・通信律速な3D拡散方程式（ステンシル計算）において、Unified Memory（ Managed メモリ）に起因するボトルネックの解消から、非同期通信と計算のオーバーラップによって弱スケーリング効率90%超を達成したマルチGPU最適化のプロセスをまとめる。
 

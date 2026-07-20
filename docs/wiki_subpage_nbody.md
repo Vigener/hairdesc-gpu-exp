@@ -1,8 +1,8 @@
-# N-body 演算・メモリ最適化のプロセス (Phase 6, 7)
-
-[[Architecture-team/igarashi/Hairdesc_OpenACC]]
+[[Architecture-team/igarashi/Hairdesc_OpenACC]]<!--PW_LINK-->
 
 #Katex
+
+# N-body 演算・メモリ最適化のプロセス (Phase 6, 7)
 
 本ページでは、N-body シミュレーションにおける、グローバルメモリ非合体アクセスの解消（SoA化）および、パイプライン演算ストール（平方根・除算）の排除による最適化プロセスと物理的検証結果をまとめる。
 

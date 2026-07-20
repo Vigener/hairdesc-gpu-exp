@@ -1,8 +1,8 @@
-# GPUプログラミング学習・実験成果 総括 (Hairdesc_OpenACC)
-
 [[Architecture-team/igarashi]]
 
 #Katex
+
+# GPUプログラミング学習・実験成果 総括 (Hairdesc_OpenACC)
 
 本ポータルページでは、Miyabi-G (NVIDIA GH200 / H100 GPU & Grace CPU) 上で実施した GPU プログラミング（OpenACC）およびマルチGPU化（MPI+OpenACC）の実践的学習と段階的な最適化（Phase 1〜7）の成果をまとめている。
 
@@ -73,4 +73,3 @@
 - [[Phase 5: 3D拡散方程式 CPU vs GPU 比較>./Phase5]]
 - [[Phase 6: SoA構造移行による合体アクセス実証>./Phase6]]
 - [[Phase 7: Fast Math & 手動rsqrt/除算排除による最適化>./Phase7]]
-

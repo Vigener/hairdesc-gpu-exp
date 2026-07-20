@@ -1,8 +1,8 @@
-# CPU vs GPU 性能対照実験の詳細と物理考察 (Phase 4, 5)
-
-[[Architecture-team/igarashi/Hairdesc_OpenACC]]
+[[Architecture-team/igarashi/Hairdesc_OpenACC]]<!--PW_LINK-->
 
 #Katex
+
+# CPU vs GPU 性能対照実験の詳細と物理考察 (Phase 4, 5)
 
 本ページでは、Miyabi が持つ2種類の計算ノードを用いて実施した、「CPU 測定性能（マルチスレッド・SIMD最大活用）」と「GPU 測定性能」の定量的な直接対照実験、およびハードウェアのアーキテクチャ特性に基づく物理考察をまとめる。
 
