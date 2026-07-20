@@ -48,15 +48,15 @@
 
 ## 3. テーマ別・詳細検証ストーリー (トピック別サブページ)
 
-### ① [[N-body 演算・メモリ最適化の過程>./N-body_Optimization]]
+### [1] [[N-body 演算・メモリ最適化の過程>./N-body_Optimization]]
 - **概要**: 
   Nsight Compute プロファイルに基づき、グローバルメモリ非合体アクセスを SoA 化によって解消。さらに、最大ストール要因 `Wait Stalls (40.7%)` の原因であった倍精度平方根 (`std::sqrt`) と除算を手動で排除し、高速な `rsqrt` 近似命令へと再設計することで、GPU で **3.08倍**、CPU で **1.68倍** の限界スループットを引き出した検証ログ。
 
-### ② [[3D 拡散方程式におけるマルチGPU通信隠蔽>./Diffusion3D_Optimization]]
+### [2] [[3D 拡散方程式におけるマルチGPU通信隠蔽>./Diffusion3D_Optimization]]
 - **概要**: 
   メモリ・通信律速な格子ステンシル計算において、Unified Memory に起因する暗黙ページフォルトのボトルネックを解明。GPU-Aware MPI の適用による転送速度の大幅な改善から、`MPI_Isend/Irecv` と OpenACC `async` を用いた非同期の「計算と通信の隠蔽（オーバーラップ）」によって、8ノードで弱スケーリング効率 **90%超** を達成した通信最適化ログ。
 
-### ③ [[CPU vs GPU 性能対照実験の詳細と物理考察>./CPU_vs_GPU_Comparison]]
+### [3] [[CPU vs GPU 性能対照実験の詳細と物理考察>./CPU_vs_GPU_Comparison]]
 - **概要**: 
   Miyabi-C (Intel Xeon CPU Max, 112スレッド) および Miyabi-G (Grace CPU, 72スレッド ＋ H100 GPU) を用い、同一演算・同一パラメータ下で絶対性能を直接対照。N-body における L3/HBM3 メモリ・キャッシュ帯域（ルーフライン）での性能律速モデルの検証、および 3D Diffusion でのキャッシュ効果による物理帯域限界突破の実証。
 
