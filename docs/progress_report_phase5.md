@@ -72,7 +72,7 @@ _図1：Nsight Systems によるタイムライン拡大図（2.0秒付近のミ
 ![MPI API サマリー](images/nsys_mpi_summary_diffusion_async.png)
 _図2：MPI API 統計サマリー（1024回の通信関数呼び出しにおける実行時間内訳）_
 
-#### タイムラインの物理的解析
+- **タイムラインの物理的解析**
 
 - **非同期通信の開始とカーネル起動の順序**:
   CPU側で非同期送信 `MPI_Isend`（図1中段のグレーのバー、この期間内では $4.689 \text{ ms}$）が呼び出された後、その中盤から GPU 側（Stream 14）で内部セルの計算を行う GPU カーネル `diffusion3d_compute` が起動していることが確認できる。

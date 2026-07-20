@@ -1,4 +1,4 @@
-[[Architecture-team/igarashi/Hairdesc_OpenACC]]<!--PW_LINK-->
+[Architecture-team/igarashi/Hairdesc_OpenACC](./Architecture-team/igarashi/Hairdesc_OpenACC)<!--PW_LINK-->
 
 #Katex
 
